@@ -19,7 +19,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', (req, res) => {
   let obj = {
     message: "Welcome to FlashCap! Type /flashcards w/ GET to grab all flashcards. Type /flashcards/?'question' w/ GET to get the answer. Type /flashcards/'category' w/ GET to recieve a random question. Type /flashcards/'category' w/ POST to create a new card."
-    // message: "Welcome to FlashCap!\nType /flashcards w/ GET to grab all flashcards.\nType /flashcards/?'question' w/ GET to get the answer.\nType /flashcards/'category' w/ GET to recieve a random question.\nType /flashcards/'category' w/ POST to create a new card."
   };
   let string = JSON.stringify(obj);
   let arr = string.split('"');
@@ -28,7 +27,7 @@ app.get('/', (req, res) => {
 });
 
 //  GET answer by ID
-app.get('/flashcards/:id', (req, res) => {
+app.get('/flashcards/answer/:id', (req, res) => {
   let id = req.params.id;
   console.log('id: ', id);
   FlashCard.getAnswerById(id, (err, answer) => {
@@ -63,17 +62,25 @@ app.get('/flashcards/', (req, res) => {
 //  GET random card w/o answer
 app.get('/flashcards/:category', (req, res) => {
   let currCategory = req.params.category;
+  let categories = currCategory.split('&');
 
-  FlashCard.getRandomCard(currCategory, (err, randomCard) => {
-    if (err) return res.status(400).send(err);
-    res.send(randomCard);
-  });
+  if (categories.length === 1) {
+    FlashCard.getRandomCard(currCategory, (err, randomCard) => {
+      if (err) return res.status(400).send(err);
+      res.send(randomCard);
+    });
+  } else {
+    FlashCard.getRandomCardMultiple(categories, (err, randomCard) => {
+      if (err) return res.status(400).send(err);
+      res.send(randomCard);
+    });
+  }
 });
 
 //  PUT update a card by ID
 app.put('/flashcards/:id/', (req, res) => {
   let id = req.params.id;
-
+  console.log('id00: ', id);
   FlashCard.updateCard(id, req.body, (err, updatedCards) => {
     if (err) return res.status(400).send(err);
 

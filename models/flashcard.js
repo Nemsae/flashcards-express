@@ -49,7 +49,25 @@ exports.getRandomCard = function (currCategory, cb) {
     });
     let randomNum = Math.floor(Math.random() * cardsCategorized.length);
     cardsCategorized[randomNum].answer = '';
-    // console.log('random card: ', cardsCategorized[randomNum]);
+
+    cb(null, cardsCategorized[randomNum]);
+  });
+};
+
+exports.getRandomCardMultiple = function (categories, cb) {
+  fs.readFile(filename, (err, buffer) => {
+    if (err) return cb(err);
+    let cards = JSON.parse(buffer);
+
+    let cardsCategorized = cards.filter((card) => {
+      let test = categories.indexOf(card.category);
+
+      if (test === 0 || test === 1) {
+        return card;
+      } else return;
+    });
+    let randomNum = Math.floor(Math.random() * cardsCategorized.length);
+    cardsCategorized[randomNum].answer = '';
 
     cb(null, cardsCategorized[randomNum]);
   });
@@ -58,10 +76,9 @@ exports.getRandomCard = function (currCategory, cb) {
 exports.getAnswer = function (question, cb) {
   fs.readFile(filename, (err, buffer) => {
     if (err) return cb(err);
-    // console.log('question in model: ', question);
+
     let arr = question.split('"');
     let cleanedQuestion = arr[1].toString();
-    // console.log('cleanedQuestion: ', cleanedQuestion);
 
     let cards = JSON.parse(buffer);
     let answerCard = cards.filter((card) => {
@@ -71,7 +88,7 @@ exports.getAnswer = function (question, cb) {
     });
 
     let answer = answerCard[0].answer;
-    // console.log('answer: ', answer);
+
     cb(null, answer);
   });
 };
@@ -79,7 +96,6 @@ exports.getAnswer = function (question, cb) {
 exports.getAnswerById = function (id, cb) {
   fs.readFile(filename, (err, buffer) => {
     if (err) return cb(err);
-    // console.log('question in model: ', question);
 
     let cards = JSON.parse(buffer);
     let answerCard = cards.filter((card) => {
@@ -89,7 +105,6 @@ exports.getAnswerById = function (id, cb) {
     });
 
     let answer = answerCard[0].answer;
-    // console.log('answer: ', answer);
     cb(null, answer);
   });
 };
@@ -97,12 +112,9 @@ exports.getAnswerById = function (id, cb) {
 exports.updateCard = function (id, body, cb) {
   fs.readFile(filename, (err, buffer) => {
     if (err) return cb(err);
-    // console.log('id: ', id);
-    // console.log('body: tof', body);
+
     let key = (Object.keys(body)).toString();
-    // console.log('key:', key);
     let value = body[key];
-    // console.log('value: ', typeof value);
     let cards = JSON.parse(buffer);
     let updatedCards = cards.map((card) => {
       if (card.id === id) {
@@ -113,7 +125,7 @@ exports.updateCard = function (id, body, cb) {
         return card;
       }
     });
-    // console.log('updatedCards: ', updatedCards);
+
     exports.write(updatedCards, cb);
     cb(null, updatedCards);
   });
@@ -132,7 +144,6 @@ exports.deleteCard = function (id, cb) {
       }
     });
     console.log('undeletedCards: ', undeletedCards);
-    // console.log('cards: ', cards);
     exports.write(undeletedCards, cb);
     cb(null, undeletedCards);
   });
